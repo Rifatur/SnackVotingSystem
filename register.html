@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍿 Register - Snack Voting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Poppins', sans-serif; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-900 to-purple-900 min-h-screen p-4">
+    <div class="max-w-2xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <a href="index.html" class="inline-flex items-center gap-2 text-blue-300 hover:text-white mb-4">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Login</span>
+            </a>
+            <div class="inline-flex items-center gap-3">
+                <div class="text-5xl">🚀</div>
+                <div>
+                    <h1 class="text-3xl font-bold text-white">Create Your Account</h1>
+                    <p class="text-blue-200">Join the office snack voting community</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Registration Form -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+            <form id="registerForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-blue-200 mb-2">Employee ID *</label>
+                        <input type="text" id="employeeId" placeholder="e.g., EMP001" 
+                            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-300 focus:outline-none focus:border-blue-500"
+                            required>
+                        <p class="text-blue-300 text-xs mt-1">This will be your login ID</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-blue-200 mb-2">Full Name *</label>
+                        <input type="text" id="employeeName" placeholder="John Doe" 
+                            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-300 focus:outline-none focus:border-blue-500"
+                            required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-blue-200 mb-2">Email Address</label>
+                    <input type="email" id="email" placeholder="john@company.com" 
+                        class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-300 focus:outline-none focus:border-blue-500">
+                    <p class="text-blue-300 text-xs mt-1">For password recovery (optional but recommended)</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-blue-200 mb-2">Password *</label>
+                        <input type="password" id="password" placeholder="••••••••" 
+                            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-300 focus:outline-none focus:border-blue-500"
+                            required>
+                        <div class="mt-2 space-y-1">
+                            <div class="flex items-center gap-2">
+                                <i id="lengthCheck" class="fas fa-times text-red-400 text-xs"></i>
+                                <span class="text-blue-300 text-xs">At least 6 characters</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-blue-200 mb-2">Confirm Password *</label>
+                        <input type="password" id="confirmPassword" placeholder="••••••••" 
+                            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-300 focus:outline-none focus:border-blue-500"
+                            required>
+                        <div class="mt-2">
+                            <div class="flex items-center gap-2">
+                                <i id="matchCheck" class="fas fa-times text-red-400 text-xs"></i>
+                                <span class="text-blue-300 text-xs">Passwords must match</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-blue-200 mb-2">Department</label>
+                        <select id="department" 
+                            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-blue-500">
+                            <option value="">Select Department</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Sales">Sales</option>
+                            <option value="HR">Human Resources</option>
+                            <option value="Design">Design</option>
+                            <option value="Support">Support</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-blue-200 mb-2">Choose Avatar</label>
+                        <div class="flex gap-3">
+                            <button type="button" onclick="selectAvatar('👤')" class="avatar-btn text-2xl p-2 rounded-lg bg-white/5 hover:bg-white/10">👤</button>
+                            <button type="button" onclick="selectAvatar('👨‍💻')" class="avatar-btn text-2xl p-2 rounded-lg bg-white/5 hover:bg-white/10">👨‍💻</button>
+                            <button type="button" onclick="selectAvatar('👩‍💼')" class="avatar-btn text-2xl p-2 rounded-lg bg-white/5 hover:bg-white/10">👩‍💼</button>
+                            <button type="button" onclick="selectAvatar('😎')" class="avatar-btn text-2xl p-2 rounded-lg bg-white/5 hover:bg-white/10">😎</button>
+                            <button type="button" onclick="selectAvatar('🤖')" class="avatar-btn text-2xl p-2 rounded-lg bg-white/5 hover:bg-white/10">🤖</button>
+                        </div>
+                        <input type="hidden" id="avatarEmoji" value="👤">
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-blue-500/20 rounded-xl">
+                    <label class="flex items-start">
+                        <input type="checkbox" id="terms" class="mt-1 mr-2" required>
+                        <span class="text-blue-200 text-sm">
+                            I agree to use this system for office voting only and will not share my credentials.
+                            I understand that votes are anonymous to other users but logged for administrative purposes.
+                        </span>
+                    </label>
+                </div>
+                
+                <div id="registerMessage" class="hidden p-3 rounded-lg"></div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 rounded-xl font-bold hover:opacity-90 transition">
+                    <i class="fas fa-user-plus mr-2"></i> Create Account
+                </button>
+                
+                <div class="text-center">
+                    <p class="text-blue-300">
+                        Already have an account? 
+                        <a href="index.html" class="text-white font-medium hover:underline">Login here</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Footer -->
+        <div class="text-center mt-8">
+            <p class="text-blue-400 text-sm">
+                <i class="fas fa-lock mr-2"></i>
+                Your password is encrypted and never stored in plain text
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://snack-voting-api-production.up.railway.app/api';
+        let selectedAvatar = '👤';
+        
+        $(document).ready(() => {
+            // Password validation
+            $('#password').on('input', validatePassword);
+            $('#confirmPassword').on('input', validatePasswordMatch);
+        });
+        
+        function validatePassword() {
+            const password = $('#password').val();
+            const isValid = password.length >= 6;
+            
+            $('#lengthCheck')
+                .removeClass('fa-times fa-check')
+                .addClass(isValid ? 'fa-check text-green-400' : 'fa-times text-red-400');
+            
+            validatePasswordMatch();
+            return isValid;
+        }
+        
+        function validatePasswordMatch() {
+            const password = $('#password').val();
+            const confirm = $('#confirmPassword').val();
+            const isValid = password === confirm && password.length > 0;
+            
+            $('#matchCheck')
+                .removeClass('fa-times fa-check')
+                .addClass(isValid ? 'fa-check text-green-400' : 'fa-times text-red-400');
+            
+            return isValid;
+        }
+        
+        function selectAvatar(emoji) {
+            selectedAvatar = emoji;
+            $('#avatarEmoji').val(emoji);
+            
+            // Update button styles
+            $('.avatar-btn').removeClass('bg-blue-500/30 border border-blue-400');
+            $(`.avatar-btn:contains("${emoji}")`).addClass('bg-blue-500/30 border border-blue-400');
+        }
+        
+        $('#registerForm').submit(async function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            if (!validatePassword() || !validatePasswordMatch()) {
+                showMessage('Please fix password errors', 'error');
+                return;
+            }
+            
+            if (!$('#terms').is(':checked')) {
+                showMessage('Please accept the terms', 'error');
+                return;
+            }
+            
+            const formData = {
+                employee_id: $('#employeeId').val().trim(),
+                employee_name: $('#employeeName').val().trim(),
+                email: $('#email').val().trim() || null,
+                password: $('#password').val(),
+                department: $('#department').val() || 'General',
+                avatar_emoji: $('#avatarEmoji').val()
+            };
+            
+            // Validate required fields
+            if (!formData.employee_id || !formData.employee_name || !formData.password) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            const btn = $(this).find('button[type="submit"]');
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Creating account...');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    
+                    // Clear form
+                    $('#registerForm')[0].reset();
+                    selectAvatar('👤');
+                    
+                    // Redirect to login after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                } else {
+                    showMessage(data.error || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                showMessage('Network error. Please try again.', 'error');
+            }
+            
+            btn.prop('disabled', false).html('<i class="fas fa-user-plus mr-2"></i> Create Account');
+        });
+        
+        function showMessage(message, type) {
+            const messageDiv = $('#registerMessage');
+            messageDiv.removeClass('hidden bg-green-100 text-green-700 bg-red-100 text-red-700');
+            
+            if (type === 'success') {
+                messageDiv.addClass('bg-green-100 text-green-700').html(`
+                    <i class="fas fa-check-circle mr-2"></i> ${message}
+                `);
+            } else {
+                messageDiv.addClass('bg-red-100 text-red-700').html(`
+                    <i class="fas fa-exclamation-circle mr-2"></i> ${message}
+                `);
+            }
+            
+            messageDiv.removeClass('hidden');
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                messageDiv.addClass('hidden');
+            }, 5000);
+        }
+        
+        // Initialize avatar selection
+        selectAvatar('👤');
+    </script>
+</body>
+</html>

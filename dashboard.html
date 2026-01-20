@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍿 Dashboard - Snack Voting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Poppins', sans-serif; }
+        .snack-card { transition: all 0.3s ease; }
+        .snack-card:hover { transform: translateY(-5px); }
+        .online-dot { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+    <!-- Loading Screen -->
+    <div id="loading" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="text-6xl mb-4 animate-bounce">🍿</div>
+            <div class="text-xl font-bold text-gray-700">Loading Dashboard...</div>
+        </div>
+    </div>
+    
+    <!-- Main App -->
+    <div id="mainApp" class="hidden">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-lg sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo -->
+                    <div class="flex items-center gap-3">
+                        <div class="text-3xl">🍿</div>
+                        <div>
+                            <h1 class="text-xl font-bold text-gray-800">Snack Vote</h1>
+                            <p class="text-xs text-gray-500" id="welcomeUser">Welcome!</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Online Users & Stats -->
+                    <div class="flex items-center gap-6">
+                        <div class="hidden md:flex items-center gap-4">
+                            <div class="flex items-center gap-2 cursor-pointer" onclick="showOnlineUsers()">
+                                <div class="relative">
+                                    <div class="w-3 h-3 bg-green-500 rounded-full online-dot"></div>
+                                    <div class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+                                </div>
+                                <span class="text-gray-700 font-medium">
+                                    <span id="onlineCount">0</span> online
+                                </span>
+                            </div>
+                            
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-vote-yea text-purple-500"></i>
+                                <span class="text-gray-700 font-medium">
+                                    <span id="totalVotesToday">0</span> votes today
+                                </span>
+                            </div>
+                            
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-clock text-blue-500"></i>
+                                <span id="countdown" class="text-gray-700 font-medium">--:--:--</span>
+                            </div>
+                        </div>
+                        
+                        <!-- User Menu -->
+                        <div class="relative group">
+                            <button class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-full px-4 py-2 transition">
+                                <span id="userAvatar" class="text-xl">👤</span>
+                                <span id="userName" class="font-medium"></span>
+                                <i class="fas fa-chevron-down text-gray-500 text-sm"></i>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 hidden group-hover:block">
+                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" onclick="showProfile()">
+                                    <i class="fas fa-user mr-2"></i> My Profile
+                                </a>
+                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" onclick="showChangePassword()">
+                                    <i class="fas fa-key mr-2"></i> Change Password
+                                </a>
+                                <div class="border-t border-gray-100"></div>
+                                <a href="#" class="block px-4 py-2 text-red-600 hover:bg-red-50" onclick="logout()">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 py-8">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="inline-block bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl px-8 py-4 shadow-lg">
+                    <h2 class="text-2xl font-bold mb-2">Today's Snack Vote</h2>
+                    <p class="opacity-90">Cast your vote before 5:00 PM</p>
+                </div>
+            </div>
+            
+            <!-- Voting Grid & Online Users -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Voting Section -->
+                <div class="lg:col-span-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8" id="snackGrid">
+                        <!-- Snack cards will load here -->
+                    </div>
+                    
+                    <!-- Today's Voters -->
+                    <div class="bg-white rounded-3xl p-6 shadow-lg">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold text-gray-800">
+                                <i class="fas fa-users text-blue-500 mr-2"></i>
+                                Today's Voters
+                            </h3>
+                            <span class="text-sm text-gray-500" id="voterCount">0 people voted</span>
+                        </div>
+                        <div id="votersList" class="space-y-3">
+                            <!-- Voters will load here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Online Users Sidebar -->
+                <div class="space-y-6">
+                    <!-- Online Users Card -->
+                    <div class="bg-white rounded-3xl p-6 shadow-lg">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold text-gray-800">
+                                <i class="fas fa-wifi text-green-500 mr-2"></i>
+                                Online Now
+                            </h3>
+                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-bold" id="onlineNowCount">0</span>
+                        </div>
+                        <div id="onlineUsersList" class="space-y-3 max-h-96 overflow-y-auto">
+                            <!-- Online users will load here -->
+                        </div>
+                    </div>
+                    
+                    <!-- User Stats -->
+                    <div class="bg-gradient-to-br from-blue-500 to-purple-500 rounded-3xl p-6 text-white">
+                        <h3 class="text-xl font-bold mb-4">My Stats</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span>Total Votes</span>
+                                <span class="text-2xl font-bold" id="myTotalVotes">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span>Voted Today</span>
+                                <span id="votedToday" class="px-3 py-1 rounded-full bg-white/20">
+                                    No
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span>Member Since</span>
+                                <span id="memberSince">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-3xl p-6 shadow-lg">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
+                        <div class="space-y-3">
+                            <button onclick="showLeaderboard()" class="w-full flex items-center gap-3 bg-gray-50 hover:bg-gray-100 rounded-xl p-3 transition">
+                                <i class="fas fa-trophy text-yellow-500"></i>
+                                <span>View Leaderboard</span>
+                            </button>
+                            <button onclick="showHistory()" class="w-full flex items-center gap-3 bg-gray-50 hover:bg-gray-100 rounded-xl p-3 transition">
+                                <i class="fas fa-history text-blue-500"></i>
+                                <span>Voting History</span>
+                            </button>
+                            <button onclick="refreshData()" class="w-full flex items-center gap-3 bg-gray-50 hover:bg-gray-100 rounded-xl p-3 transition">
+                                <i class="fas fa-sync-alt text-green-500"></i>
+                                <span>Refresh Data</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modals -->
+    <div id="profileModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">My Profile</h3>
+                <button onclick="hideProfile()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="profileContent"></div>
+        </div>
+    </div>
+    
+    <div id="changePasswordModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">Change Password</h3>
+                <button onclick="hideChangePassword()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="changePasswordForm" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 mb-2">Current Password</label>
+                    <input type="password" id="currentPassword" 
+                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">New Password</label>
+                    <input type="password" id="newPassword" 
+                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:outline-none">
+                    <p class="text-gray-500 text-xs mt-1">Must be at least 6 characters</p>
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Confirm New Password</label>
+                    <input type="password" id="confirmNewPassword" 
+                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:outline-none">
+                </div>
+                <div id="passwordMessage" class="hidden p-3 rounded-lg"></div>
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-3 rounded-xl font-bold">
+                    Update Password
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="onlineUsersModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-3xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">👥 Online Users</h3>
+                <button onclick="hideOnlineUsers()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="onlineUsersModalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'https://snack-voting-api-production.up.railway.app/api';
+        const VOTING_END_HOUR = 17; // 5 PM
+        
+        // Global state
+        let state = {
+            user: null,
+            token: null,
+            ws: null,
+            onlineUsers: [],
+            snacks: [],
+            todayVotes: [],
+            hasVotedToday: false,
+            refreshInterval: null,
+            wsReconnectInterval: null
+        };
+        
+        // Initialize on page load
+        $(document).ready(async () => {
+            await initializeApp();
+        });
+        
+        // Main initialization
+        async function initializeApp() {
+            // Check authentication
+            state.token = localStorage.getItem('auth_token');
+            state.user = JSON.parse(localStorage.getItem('user') || 'null');
+            
+            if (!state.token || !state.user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            try {
+                // Verify token is still valid
+                const response = await fetch(`${API_BASE_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${state.token}` }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Invalid token');
+                }
+                
+                // Update user data
+                const data = await response.json();
+                if (data.success) {
+                    state.user = { ...state.user, ...data.user };
+                    localStorage.setItem('user', JSON.stringify(state.user));
+                }
+                
+                // Update UI
+                updateUserUI();
+                
+                // Load initial data
+                await Promise.all([
+                    loadSnacks(),
+                    loadTodayVotes(),
+                    loadOnlineUsers(),
+                    loadUserStats()
+                ]);
+                
+                // Start WebSocket connection
+                connectWebSocket();
+                
+                // Start auto-refresh
+                startAutoRefresh();
+                
+                // Start countdown timer
+                startVotingTimer();
+                
+                // Show main app
+                $('#loading').hide();
+                $('#mainApp').show();
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                alert('Session expired. Please login again.');
+                logout();
+            }
+        }
+        
+        // Update user UI
+        function updateUserUI() {
+            $('#welcomeUser').text(`Welcome, ${state.user.employee_name}!`);
+            $('#userName').text(state.user.employee_name);
+            $('#userAvatar').text(state.user.avatar_emoji || '👤');
+        }
+        
+        // Load snacks
+        async function loadSnacks() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/snacks`, {
+                    headers: { 'Authorization': `Bearer ${state.token}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    state.snacks = data.data;
+                    renderSnacks();
+                }
+            } catch (error) {
+                console.error('Failed to load snacks:', error);
+            }
+        }
+        
+        // Load today's votes
+        async function loadTodayVotes() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/vote/today`, {
+                    headers: { 'Authorization': `Bearer ${state.token}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    state.todayVotes = data.data.votes || [];
+                    state.hasVotedToday = !!data.data.userVote;
+                    
+                    updateVotesUI(data.data);
+                    updateVotingStatus();
+                }
+            } catch (error) {
+                console.error('Failed to load votes:', error);
+            }
+        }
+        
+        // Load online users via HTTP
+        async function loadOnlineUsers() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/online-users`, {
+                    headers: { 'Authorization': `Bearer ${state.token}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    state.onlineUsers = data.onlineUsers || [];
+                    updateOnlineUsersUI();
+                }
+            } catch (error) {
+                console.error('Failed to load online users:', error);
+            }
+        }
+        
+        // Load user stats
+        async function loadUserStats() {
+            try {
+                $('#myTotalVotes').text(state.user.total_votes || 0);
+                $('#votedToday').text(state.hasVotedToday ? 'Yes' : 'No');
+                $('#votedToday').toggleClass('bg-green-500/30', state.hasVotedToday);
+                $('#votedToday').toggleClass('bg-red-500/30', !state.hasVotedToday);
+                
+                if (state.user.created_at) {
+                    const date = new Date(state.user.created_at);
+                    $('#memberSince').text(date.toLocaleDateString());
+                }
+            } catch (error) {
+                console.error('Failed to load user stats:', error);
+            }
+        }
+        
+        // Render snacks
+        function renderSnacks() {
+            let html = '';
+            state.snacks.forEach(snack => {
+                const voteCount = state.todayVotes.filter(v => v.snack_id === snack.id).length;
+                const percentage = Math.min((voteCount / (state.todayVotes.length || 1)) * 100, 100);
+                const userVote = state.todayVotes.find(v => v.user_id === state.user.id && v.snack_id === snack.id);
+                const isVoted = !!userVote;
+                
+                html += `
+                    <div class="snack-card bg-white rounded-2xl p-6 shadow ${isVoted ? 'border-2 border-green-500' : ''}">
+                        <div class="text-6xl text-center mb-4 hover:scale-110 transition-transform">${snack.emoji}</div>
+                        <h3 class="text-xl font-bold text-center text-gray-800 mb-2">${snack.name}</h3>
+                        
+                        <div class="bg-gray-100 rounded-full h-3 mb-3 overflow-hidden">
+                            <div class="h-full bg-gradient-to-r ${snack.color_gradient}" 
+                                 style="width: ${percentage}%"></div>
+                        </div>
+                        
+                        <div class="flex justify-between text-sm text-gray-600 mb-4">
+                            <span>${voteCount} votes</span>
+                            <span>${percentage.toFixed(1)}%</span>
+                        </div>
+                        
+                        <button onclick="submitVote(${snack.id})" 
+                            class="vote-btn w-full bg-gradient-to-r ${snack.color_gradient} text-white py-3 rounded-xl font-bold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            ${state.hasVotedToday ? 'disabled' : ''}>
+                            ${isVoted ? '✓ Voted' : 'Vote Now'}
+                        </button>
+                    </div>
+                `;
+            });
+            
+            $('#snackGrid').html(html);
+        }
+        
+        // Update votes UI
+        function updateVotesUI(data) {
+            // Update vote counts
+            $('#totalVotesToday').text(data.totalVotes);
+            $('#voterCount').text(`${data.votes.length} people voted`);
+            
+            // Update voters list
+            let votersHtml = '';
+            if (data.votes.length === 0) {
+                votersHtml = `
+                    <div class="text-center py-8 text-gray-400">
+                        <div class="text-5xl mb-2">👥</div>
+                        <p>No votes yet today</p>
+                    </div>
+                `;
+            } else {
+                data.votes.forEach(vote => {
+                    const isCurrentUser = vote.user_id === state.user.id;
+                    const isOnline = state.onlineUsers.some(u => u.userId === vote.user_id);
+                    
+                    votersHtml += `
+                        <div class="flex items-center gap-3 bg-gray-50 rounded-xl p-3 ${isCurrentUser ? 'border-2 border-blue-200' : ''}">
+                            <div class="relative">
+                                <span class="text-2xl">${vote.avatar_emoji || '👤'}</span>
+                                ${isOnline ? 
+                                    '<div class="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"></div>' : 
+                                    ''
+                                }
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium ${isCurrentUser ? 'text-blue-600' : 'text-gray-700'}">
+                                    ${vote.employee_name} ${isCurrentUser ? '(You)' : ''}
+                                </p>
+                                <p class="text-xs text-gray-500">${vote.department || 'Office'}</p>
+                            </div>
+                            <span class="text-3xl">${vote.snack_emoji}</span>
+                        </div>
+                    `;
+                });
+            }
+            
+            $('#votersList').html(votersHtml);
+        }
+        
+        // Update online users UI
+        function updateOnlineUsersUI() {
+            const onlineCount = state.onlineUsers.filter(u => u.isOnline).length;
+            
+            $('#onlineCount').text(onlineCount);
+            $('#onlineNowCount').text(onlineCount);
+            
+            // Update online users list
+            let onlineHtml = '';
+            if (state.onlineUsers.length === 0) {
+                onlineHtml = `
+                    <div class="text-center py-8 text-gray-400">
+                        <div class="text-4xl mb-2">🌐</div>
+                        <p>No one online</p>
+                    </div>
+                `;
+            } else {
+                state.onlineUsers.forEach(user => {
+                    const timeAgo = getTimeAgo(user.lastSeen);
+                    
+                    onlineHtml += `
+                        <div class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl transition">
+                            <div class="relative">
+                                <span class="text-2xl">${user.avatar || '👤'}</span>
+                                ${user.isOnline ? 
+                                    '<div class="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full online-dot"></div>' : 
+                                    '<div class="absolute -top-1 -right-1 w-2 h-2 bg-gray-400 rounded-full"></div>'
+                                }
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium">${user.name}</p>
+                                <p class="text-xs text-gray-500">${user.department || 'Office'}</p>
+                            </div>
+                            <span class="text-xs text-gray-400">${timeAgo}</span>
+                        </div>
+                    `;
+                });
+            }
+            
+            $('#onlineUsersList').html(onlineHtml);
+        }
+        
+        // Submit vote
+        async function submitVote(snackId) {
+            if (state.hasVotedToday) {
+                alert('You have already voted today!');
+                return;
+            }
+            
+            const snack = state.snacks.find(s => s.id === snackId);
+            
+            if (confirm(`Vote for ${snack.emoji} ${snack.name}?`)) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/vote/submit`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${state.token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ snackId })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Update state
+                        state.hasVotedToday = true;
+                        
+                        // Reload data
+                        await loadTodayVotes();
+                        await loadUserStats();
+                        
+                        // Send vote via WebSocket
+                        if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+                            state.ws.send(JSON.stringify({
+                                type: 'vote',
+                                data: {
+                                    userId: state.user.id,
+                                    snackId,
+                                    timestamp: new Date().toISOString()
+                                }
+                            }));
+                        }
+                        
+                        alert('Vote submitted successfully!');
+                    } else {
+                        alert(data.error || 'Vote failed');
+                    }
+                } catch (error) {
+                    alert('Network error. Please try again.');
+                }
+            }
+        }
+        
+        // WebSocket connection
+        function connectWebSocket() {
+            if (!state.token) return;
+            
+            const wsUrl = `ws://localhost:3000?token=${state.token}`;
+            state.ws = new WebSocket(wsUrl);
+            
+            state.ws.onopen = () => {
+                console.log('WebSocket connected');
+                
+                // Start heartbeat
+                if (state.wsReconnectInterval) {
+                    clearInterval(state.wsReconnectInterval);
+                }
+                
+                setInterval(() => {
+                    if (state.ws.readyState === WebSocket.OPEN) {
+                        state.ws.send(JSON.stringify({ type: 'heartbeat' }));
+                    }
+                }, 15000);
+            };
+            
+            state.ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    
+                    switch (data.type) {
+                        case 'online_users':
+                            state.onlineUsers = data.data.map(user => ({
+                                ...user,
+                                isOnline: (Date.now() - user.lastSeen) < 30000
+                            }));
+                            updateOnlineUsersUI();
+                            break;
+                            
+                        case 'new_vote':
+                            // Add new vote to list
+                            state.todayVotes.unshift({
+                                user_id: data.data.userId,
+                                employee_name: data.data.employee_name,
+                                avatar_emoji: data.data.avatar_emoji,
+                                department: data.data.department,
+                                snack_id: data.data.snack_id,
+                                snack_name: data.data.snack_name,
+                                snack_emoji: data.data.snack_emoji
+                            });
+                            
+                            updateVotesUI({
+                                votes: state.todayVotes,
+                                totalVotes: state.todayVotes.length
+                            });
+                            break;
+                    }
+                } catch (error) {
+                    console.error('WebSocket message error:', error);
+                }
+            };
+            
+            state.ws.onclose = () => {
+                console.log('WebSocket disconnected');
+                
+                // Try to reconnect after 5 seconds
+                state.wsReconnectInterval = setTimeout(connectWebSocket, 5000);
+            };
+            
+            state.ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        }
+        
+        // Auto-refresh
+        function startAutoRefresh() {
+            if (state.refreshInterval) {
+                clearInterval(state.refreshInterval);
+            }
+            
+            state.refreshInterval = setInterval(async () => {
+                await loadTodayVotes();
+                await loadOnlineUsers();
+            }, 10000); // Every 10 seconds
+        }
+        
+        // Voting timer
+        function startVotingTimer() {
+            function updateTimer() {
+                const now = new Date();
+                const endTime = new Date();
+                endTime.setHours(VOTING_END_HOUR, 0, 0, 0);
+                
+                if (now >= endTime) {
+                    $('#countdown').text('00:00:00');
+                    $('.vote-btn').prop('disabled', true);
+                    return;
+                }
+                
+                const diff = endTime - now;
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                $('#countdown').text(
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+                );
+            }
+            
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+        
+        function updateVotingStatus() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            
+            if (currentHour >= VOTING_END_HOUR) {
+                $('.vote-btn').prop('disabled', true);
+            }
+        }
+        
+        // Helper functions
+        function getTimeAgo(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+            
+            if (diff < 60000) return 'just now';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+            return `${Math.floor(diff / 86400000)}d ago`;
+        }
+        
+        // Profile functions
+        function showProfile() {
+            $('#profileContent').html(`
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4">
+                        <span class="text-5xl">${state.user.avatar_emoji || '👤'}</span>
+                        <div>
+                            <h4 class="text-xl font-bold">${state.user.employee_name}</h4>
+                            <p class="text-gray-600">${state.user.department || 'General'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-sm text-gray-500">Employee ID</p>
+                            <p class="font-bold">${state.user.employee_id}</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-sm text-gray-500">Total Votes</p>
+                            <p class="font-bold">${state.user.total_votes || 0}</p>
+                        </div>
+                    </div>
+                    
+                    ${state.user.email ? `
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-sm text-gray-500">Email</p>
+                            <p class="font-bold">${state.user.email}</p>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <p class="text-sm text-gray-500">Member Since</p>
+                        <p class="font-bold">${new Date(state.user.created_at).toLocaleDateString()}</p>
+                    </div>
+                </div>
+            `);
+            
+            $('#profileModal').removeClass('hidden').addClass('flex');
+        }
+        
+        function hideProfile() {
+            $('#profileModal').removeClass('flex').addClass('hidden');
+        }
+        
+        function showChangePassword() {
+            $('#changePasswordForm')[0].reset();
+            $('#passwordMessage').addClass('hidden').empty();
+            $('#changePasswordModal').removeClass('hidden').addClass('flex');
+        }
+        
+        function hideChangePassword() {
+            $('#changePasswordModal').removeClass('flex').addClass('hidden');
+        }
+        
+        // Change password form
+        $('#changePasswordForm').submit(async function(e) {
+            e.preventDefault();
+            
+            const currentPassword = $('#currentPassword').val();
+            const newPassword = $('#newPassword').val();
+            const confirmPassword = $('#confirmNewPassword').val();
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showPasswordMessage('Please fill all fields', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showPasswordMessage('New password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showPasswordMessage('Passwords do not match', 'error');
+                return;
+            }
+            
+            const btn = $(this).find('button[type="submit"]');
+            btn.prop('disabled', true).text('Updating...');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${state.token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        current_password: currentPassword,
+                        new_password: newPassword
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showPasswordMessage('Password changed successfully! Please login again.', 'success');
+                    
+                    setTimeout(() => {
+                        logout();
+                    }, 2000);
+                } else {
+                    showPasswordMessage(data.error || 'Failed to change password', 'error');
+                }
+            } catch (error) {
+                showPasswordMessage('Network error. Please try again.', 'error');
+            }
+            
+            btn.prop('disabled', false).text('Update Password');
+        });
+        
+        function showPasswordMessage(message, type) {
+            const messageDiv = $('#passwordMessage');
+            messageDiv.removeClass('hidden bg-green-100 text-green-700 bg-red-100 text-red-700');
+            
+            if (type === 'success') {
+                messageDiv.addClass('bg-green-100 text-green-700');
+            } else {
+                messageDiv.addClass('bg-red-100 text-red-700');
+            }
+            
+            messageDiv.html(`<i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle mr-2"></i> ${message}`);
+            messageDiv.removeClass('hidden');
+        }
+        
+        // Online users modal
+        function showOnlineUsers() {
+            let html = '<div class="space-y-4">';
+            
+            state.onlineUsers.forEach(user => {
+                const timeAgo = getTimeAgo(user.lastSeen);
+                
+                html += `
+                    <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                        <div class="relative">
+                            <span class="text-3xl">${user.avatar || '👤'}</span>
+                            ${user.isOnline ? 
+                                '<div class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full online-dot"></div>' : 
+                                '<div class="absolute -top-1 -right-1 w-3 h-3 bg-gray-400 rounded-full"></div>'
+                            }
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-800">${user.name}</h4>
+                            <p class="text-sm text-gray-600">${user.department || 'Office'}</p>
+                            <p class="text-xs text-gray-500">Last active: ${timeAgo}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold ${user.isOnline ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}">
+                                ${user.isOnline ? 'Online' : 'Away'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            $('#onlineUsersModalContent').html(html);
+            $('#onlineUsersModal').removeClass('hidden').addClass('flex');
+        }
+        
+        function hideOnlineUsers() {
+            $('#onlineUsersModal').removeClass('flex').addClass('hidden');
+        }
+        
+        // Other functions
+        function showLeaderboard() {
+            alert('Leaderboard feature coming soon!');
+        }
+        
+        function showHistory() {
+            alert('Voting history feature coming soon!');
+        }
+        
+        function refreshData() {
+            Promise.all([
+                loadSnacks(),
+                loadTodayVotes(),
+                loadOnlineUsers(),
+                loadUserStats()
+            ]).then(() => {
+                alert('Data refreshed!');
+            });
+        }
+        
+        // Logout
+        function logout() {
+            // Send logout request
+            fetch(`${API_BASE_URL}/auth/logout`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${state.token}` }
+            }).catch(() => {
+                // Ignore errors
+            });
+            
+            // Clear local storage
+            localStorage.clear();
+            
+            // Disconnect WebSocket
+            if (state.ws) {
+                state.ws.close();
+            }
+            
+            // Clear intervals
+            if (state.refreshInterval) {
+                clearInterval(state.refreshInterval);
+            }
+            
+            if (state.wsReconnectInterval) {
+                clearInterval(state.wsReconnectInterval);
+            }
+            
+            // Redirect to login
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

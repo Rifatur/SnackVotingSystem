@@ -3,656 +3,338 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍿 Office Snack Voting</title>
-    
-    <!-- Production CDNs -->
+    <title>🍿 Office Snack Voting - Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍿</text></svg>">
-    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         * { font-family: 'Poppins', sans-serif; }
-        
-        /* Production styles */
-        .snack-card { transition: all 0.3s ease; }
-        .snack-card:hover { transform: translateY(-5px); }
-        .voted { border: 3px solid #10B981; }
-        .online-dot { animation: pulse 2s infinite; }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        /* Confetti animation for production */
-        .confetti { 
-            position: fixed; 
-            pointer-events: none; 
-            animation: confetti-fall 3s linear forwards; 
-        }
-        
-        @keyframes confetti-fall {
-            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-        }
+        .auth-card { transition: all 0.3s ease; }
+        .auth-card:hover { transform: translateY(-5px); }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
-    <!-- Loading Screen -->
-    <div id="loading" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
-        <div class="text-center">
-            <div class="text-6xl mb-4 animate-bounce">🍿</div>
-            <div class="text-xl font-bold text-gray-700">Loading Snack Voting...</div>
-            <div class="mt-4 w-48 h-2 bg-gray-200 rounded-full overflow-hidden mx-auto">
-                <div id="loadingBar" class="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full w-0 transition-all duration-1000"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Login Screen -->
-    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
-            <div class="text-center">
-                <div class="text-7xl mb-6">🎉</div>
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">Office Snack Voting</h1>
-                <p class="text-gray-600 mb-6">Vote for today's office snack!</p>
-                
-                <!-- Connection Status -->
-                <div id="connectionStatus" class="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm font-medium text-blue-700">Backend Status</span>
-                        <div class="flex items-center gap-2">
-                            <div id="statusDot" class="w-3 h-3 bg-gray-400 rounded-full"></div>
-                            <span id="statusText" class="text-sm">Checking...</span>
-                        </div>
+<body class="bg-gradient-to-br from-blue-900 to-purple-900 min-h-screen">
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-6xl w-full">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center gap-4 mb-6">
+                    <div class="text-6xl">🍿</div>
+                    <div>
+                        <h1 class="text-5xl font-bold text-white">Office Snack Voting</h1>
+                        <p class="text-blue-200 mt-2">Cast your vote for today's office snack</p>
                     </div>
                 </div>
                 
-                <!-- Login Form -->
-                <div class="space-y-4 mb-6">
-                    <div>
-                        <input type="text" id="employeeName" placeholder="Your Name" 
-                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-blue-500 focus:outline-none"
-                            autocomplete="name">
+                <!-- Stats -->
+                <div class="inline-flex items-center gap-6 bg-white/10 backdrop-blur-sm rounded-2xl px-8 py-4 mb-8">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-white" id="totalVotes">0</div>
+                        <div class="text-blue-200 text-sm">Today's Votes</div>
                     </div>
-                    <div>
-                        <select id="employeeDept" class="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-blue-500 focus:outline-none">
-                            <option value="">Select Department (Optional)</option>
-                            <option value="Engineering">Engineering</option>
-                            <option value="Marketing">Marketing</option>
-                            <option value="Sales">Sales</option>
-                            <option value="HR">Human Resources</option>
-                            <option value="Design">Design</option>
-                            <option value="Support">Support</option>
-                            <option value="Other">Other</option>
-                        </select>
+                    <div class="h-10 w-px bg-white/20"></div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-white" id="onlineUsers">0</div>
+                        <div class="text-blue-200 text-sm">Online Now</div>
+                    </div>
+                    <div class="h-10 w-px bg-white/20"></div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-white" id="totalUsers">0</div>
+                        <div class="text-blue-200 text-sm">Registered Users</div>
                     </div>
                 </div>
-                
-                <button onclick="login()" id="loginBtn"
-                    class="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-3 rounded-xl font-bold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                    <i class="fas fa-sign-in-alt mr-2"></i> Enter Voting
-                </button>
-                
-                <p class="text-gray-400 text-sm mt-4">Voting opens daily • Results announced at 5 PM</p>
             </div>
-        </div>
-    </div>
-
-    <!-- Main App -->
-    <div id="mainApp" class="max-w-7xl mx-auto p-4 hidden">
-        <!-- Header -->
-        <nav class="bg-white/80 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-30">
-            <div class="max-w-7xl mx-auto px-4 py-3">
-                <div class="flex justify-between items-center">
-                    <!-- Logo -->
-                    <div class="flex items-center gap-3">
-                        <div class="text-3xl">🍿</div>
-                        <div>
-                            <h1 class="text-xl font-bold text-gray-800">Snack Vote</h1>
-                            <p class="text-xs text-gray-500" id="welcomeUser">Welcome!</p>
-                        </div>
+            
+            <!-- Auth Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <!-- Login Card -->
+                <div class="auth-card bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🔐</div>
+                        <h2 class="text-2xl font-bold text-white">Login to Vote</h2>
+                        <p class="text-blue-200 mt-2">Already have an account?</p>
                     </div>
                     
-                    <!-- Stats -->
-                    <div class="flex items-center gap-6">
-                        <div class="hidden md:flex items-center gap-4">
-                            <div class="flex items-center gap-2">
-                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                <span class="text-gray-700 font-medium">
-                                    <span id="onlineCount">0</span> online
-                                </span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-vote-yea text-purple-500"></i>
-                                <span class="text-gray-700 font-medium">
-                                    <span id="totalVotes">0</span> votes today
-                                </span>
-                            </div>
+                    <form id="loginForm" class="space-y-4">
+                        <div>
+                            <input type="text" id="loginEmployeeId" placeholder="Employee ID" 
+                                class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-300 focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <input type="password" id="loginPassword" placeholder="Password" 
+                                class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-blue-300 focus:outline-none focus:border-blue-500">
                         </div>
                         
-                        <!-- User Menu -->
-                        <div class="relative">
-                            <button class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-full px-4 py-2 transition">
-                                <span id="userAvatar">👤</span>
-                                <span id="userName" class="font-medium"></span>
-                                <i class="fas fa-chevron-down text-gray-500 text-sm"></i>
-                            </button>
-                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 hidden" id="userMenu">
-                                <button onclick="showStats()" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
-                                    <i class="fas fa-chart-bar mr-2"></i> My Stats
-                                </button>
-                                <button onclick="logout()" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50">
-                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                                </button>
-                            </div>
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="rememberMe" class="mr-2">
+                                <span class="text-blue-200 text-sm">Remember me</span>
+                            </label>
+                            <a href="#" onclick="showForgotPassword()" class="text-blue-300 text-sm hover:text-blue-200">Forgot password?</a>
                         </div>
+                        
+                        <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3 rounded-xl font-bold hover:opacity-90 transition">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Login
+                        </button>
+                    </form>
+                    
+                    <div class="mt-6 text-center">
+                        <p class="text-blue-200">Demo Accounts:</p>
+                        <p class="text-white text-sm mt-1">
+                            Admin: <code class="bg-white/10 px-2 py-1 rounded">admin123 / admin123</code><br>
+                            User: <code class="bg-white/10 px-2 py-1 rounded">user001 / user001</code>
+                        </p>
                     </div>
                 </div>
-            </div>
-        </nav>
-        
-        <!-- Main Content -->
-        <main class="py-8">
-            <!-- Voting Timer -->
-            <div class="text-center mb-8">
-                <div class="inline-block bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-2xl px-8 py-4 shadow-lg">
-                    <h2 class="text-2xl font-bold mb-2">Today's Snack Vote</h2>
-                    <div class="flex items-center justify-center gap-4">
-                        <div>
-                            <div class="text-xs text-blue-100">Voting closes in</div>
-                            <div id="countdown" class="text-3xl font-bold">--:--:--</div>
-                        </div>
-                        <div class="h-10 w-px bg-white/30"></div>
-                        <div>
-                            <div class="text-xs text-blue-100">Total Votes</div>
-                            <div id="voteCount" class="text-3xl font-bold">0</div>
-                        </div>
+                
+                <!-- Register Card -->
+                <div class="auth-card bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🚀</div>
+                        <h2 class="text-2xl font-bold text-white">Join the Vote</h2>
+                        <p class="text-blue-200 mt-2">New to snack voting?</p>
                     </div>
-                </div>
-            </div>
-            
-            <!-- Snack Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="snackGrid">
-                <!-- Snack cards will load here -->
-            </div>
-            
-            <!-- Today's Voters -->
-            <div class="bg-white rounded-3xl p-6 shadow-lg mb-8">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">
-                    <i class="fas fa-users text-blue-500 mr-2"></i>
-                    Today's Voters
-                </h3>
-                <div id="votersList" class="space-y-3">
-                    <div class="text-center py-8 text-gray-400">
-                        <div class="text-5xl mb-2">👥</div>
-                        <p>No votes yet today</p>
+                    
+                    <div class="space-y-4">
+                        <div class="text-center">
+                            <p class="text-blue-200 mb-4">Register to get your voting credentials</p>
+                            <a href="register.html">
+                                <button class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-xl font-bold hover:opacity-90 transition">
+                                    <i class="fas fa-user-plus mr-2"></i> Create Account
+                                </button>
+                            </a>
+                        </div>
+                        
+                        <div class="border-t border-white/10 pt-6">
+                            <h3 class="text-white font-bold mb-3">Why Register?</h3>
+                            <ul class="space-y-2 text-blue-200 text-sm">
+                                <li class="flex items-center gap-2">
+                                    <i class="fas fa-check text-green-400"></i>
+                                    <span>Vote for daily office snacks</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <i class="fas fa-check text-green-400"></i>
+                                    <span>See real-time voting results</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <i class="fas fa-check text-green-400"></i>
+                                    <span>Track your voting history</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <i class="fas fa-check text-green-400"></i>
+                                    <span>Compete on the leaderboard</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
             
             <!-- Footer -->
-            <div class="text-center text-gray-500 text-sm">
-                <p>Office Snack Voting System v1.0 • <span id="serverStatus" class="font-medium">Connected</span></p>
-            </div>
-        </main>
-    </div>
-
-    <!-- Stats Modal -->
-    <div id="statsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
-        <div class="bg-white rounded-3xl p-6 max-w-md w-full mx-4">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-gray-800">My Voting Stats</h3>
-                <button onclick="hideStats()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <div id="statsContent" class="space-y-4">
-                <!-- Stats will load here -->
+            <div class="text-center mt-12">
+                <p class="text-blue-300 text-sm">
+                    <i class="fas fa-shield-alt mr-2"></i>
+                    Secure authentication • Real-time updates • Office use only
+                </p>
+                <p class="text-blue-400 text-xs mt-2" id="serverStatus">
+                    <i class="fas fa-circle text-gray-400 mr-1"></i>
+                    Connecting to server...
+                </p>
             </div>
         </div>
     </div>
-
-    <!-- Confetti Container -->
-    <div id="confettiContainer" class="fixed inset-0 pointer-events-none z-40"></div>
-
-    <!-- JavaScript -->
-    <script>
-
-        const CONFIG = {
-            API_BASE_URL: 'https://snack-voting-api-production.up.railway.app/api', // 
-            SNACKS: [],
-            REFRESH_INTERVAL: 5000, // 5 seconds
-            VOTING_END_HOUR: 17 // 5 PM
-        };
-
-        // Application State
-        let state = {
-            currentUser: null,
-            userId: null,
-            userAvatar: '👤',
-            userDept: '',
-            hasVotedToday: false,
-            votingClosed: false,
-            refreshTimer: null
-        };
-
-
-
-        $(document).ready(async () => {
-            console.log('🚀 Starting Snack Voting System...');
+    
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">Reset Password</h3>
+                <button onclick="hideForgotPassword()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
             
-            // Show loading animation
-            $('#loadingBar').css('width', '30%');
-            
-            // Check backend connection
-            await checkBackendConnection();
-            
-            // Complete loading
-            $('#loadingBar').css('width', '100%');
-            setTimeout(() => {
-                $('#loading').fadeOut(300);
-            }, 500);
-            
-            // Setup user menu toggle
-            $('.relative button').click(function(e) {
-                e.stopPropagation();
-                $('#userMenu').toggle();
-            });
-            
-            $(document).click(() => $('#userMenu').hide());
-        });
-
-        // ============================================
-        // BACKEND CONNECTION
-        // ============================================
-
-        async function checkBackendConnection() {
-            try {
-                $('#statusText').text('Connecting...');
-                $('#statusDot').removeClass('bg-green-500 bg-red-500').addClass('bg-yellow-500');
+            <form id="resetPasswordForm" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 mb-2">Enter your registered email</label>
+                    <input type="email" id="resetEmail" placeholder="your.email@company.com" 
+                        class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:outline-none">
+                </div>
                 
-                const response = await fetch(`${CONFIG.API_BASE_URL}/health`);
+                <div id="resetMessage" class="hidden p-3 rounded-lg"></div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-3 rounded-xl font-bold hover:opacity-90">
+                    Send Reset Instructions
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'https://snack-voting-api-production.up.railway.app/api';
+        
+        // Load stats on page load
+        $(document).ready(async () => {
+            await loadStats();
+            checkServerStatus();
+            
+            // Auto-check server every 30 seconds
+            setInterval(checkServerStatus, 30000);
+        });
+        
+        async function loadStats() {
+            try {
+                // Get health status
+                const healthResponse = await fetch(`${API_BASE_URL}/health`);
+                const healthData = await healthResponse.json();
+                
+                if (healthData.success) {
+                    $('#onlineUsers').text(healthData.onlineUsers || 0);
+                }
+                
+                // You would fetch other stats from protected endpoints
+                // For demo, we'll use placeholder values
+                $('#totalVotes').text('42');
+                $('#totalUsers').text('156');
+                
+            } catch (error) {
+                console.log('Stats loading failed (expected for public endpoint)');
+            }
+        }
+        
+        async function checkServerStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
                 const data = await response.json();
                 
                 if (data.success) {
-                    $('#statusText').text('Connected ✓');
-                    $('#statusDot').removeClass('bg-yellow-500').addClass('bg-green-500');
-                    $('#loginBtn').prop('disabled', false);
-                    $('#serverStatus').text('Connected');
-                    console.log('✅ Backend connected:', data.message);
-                    return true;
+                    $('#serverStatus').html('<i class="fas fa-circle text-green-500 mr-1"></i> Server connected');
                 }
             } catch (error) {
-                $('#statusText').text('Connection failed');
-                $('#statusDot').removeClass('bg-yellow-500').addClass('bg-red-500');
-                $('#loginBtn').prop('disabled', true);
-                $('#serverStatus').text('Disconnected');
-                console.error('❌ Backend connection failed:', error);
-                
-                // Try localhost as fallback for debugging
-                if (CONFIG.API_BASE_URL.includes('railway')) {
-                    console.log('Trying localhost as fallback...');
-                    CONFIG.API_BASE_URL = 'http://localhost:3000/api';
-                    setTimeout(checkBackendConnection, 2000);
-                }
-                return false;
+                $('#serverStatus').html('<i class="fas fa-circle text-red-500 mr-1"></i> Server offline');
             }
         }
-
-        // ============================================
-        // AUTHENTICATION
-        // ============================================
-
-        async function login() {
-            const name = $('#employeeName').val().trim();
-            const dept = $('#employeeDept').val();
+        
+        // Login form submission
+        $('#loginForm').submit(async function(e) {
+            e.preventDefault();
             
-            if (!name) {
-                alert('Please enter your name');
+            const employeeId = $('#loginEmployeeId').val().trim();
+            const password = $('#loginPassword').val();
+            
+            if (!employeeId || !password) {
+                alert('Please enter Employee ID and password');
                 return;
             }
             
-            // Generate unique user ID
-            state.userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-            state.currentUser = name;
-            state.userDept = dept || 'General';
-            
-            $('#loading').show();
+            const loginBtn = $(this).find('button[type="submit"]');
+            loginBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Logging in...');
             
             try {
-                // Register with backend
-                const response = await fetch(`${CONFIG.API_BASE_URL}/auth/login`, {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: state.userId,
-                        employeeName: state.currentUser,
-                        department: state.userDept,
-                        avatarEmoji: state.userAvatar,
-                        isGuest: false
-                    })
+                    body: JSON.stringify({ employee_id: employeeId, password })
                 });
                 
-                if (!response.ok) throw new Error('Login failed');
-                
-                // Update UI
-                $('#loginScreen').hide();
-                $('#mainApp').show();
-                $('#welcomeUser').text(`Hello, ${state.currentUser}!`);
-                $('#userName').text(state.currentUser);
-                $('#userAvatar').text(state.userAvatar);
-                
-                // Load initial data
-                await loadSnacks();
-                await loadTodayVotes();
-                
-                // Start auto-refresh
-                startAutoRefresh();
-                
-                // Start countdown timer
-                startVotingTimer();
-                
-                console.log('✅ Logged in successfully');
-                
-            } catch (error) {
-                alert('Login failed. Please try again.');
-                console.error('Login error:', error);
-            }
-            
-            $('#loading').hide();
-        }
-
-        function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                state.currentUser = null;
-                state.userId = null;
-                
-                if (state.refreshTimer) clearInterval(state.refreshTimer);
-                
-                $('#mainApp').hide();
-                $('#loginScreen').show();
-                $('#employeeName').val('');
-                
-                console.log('👋 User logged out');
-            }
-        }
-
-        // ============================================
-        // VOTING SYSTEM
-        // ============================================
-
-        async function loadSnacks() {
-            try {
-                const response = await fetch(`${CONFIG.API_BASE_URL}/snacks`);
                 const data = await response.json();
                 
                 if (data.success) {
-                    CONFIG.SNACKS = data.data;
-                    renderSnacks();
+                    // Save token and user data
+                    localStorage.setItem('auth_token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('session_token', data.session_token);
+                    
+                    // Redirect to dashboard
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert(data.error || 'Login failed');
+                    loginBtn.prop('disabled', false).html('<i class="fas fa-sign-in-alt mr-2"></i> Login');
                 }
             } catch (error) {
-                console.error('Failed to load snacks:', error);
+                alert('Network error. Please try again.');
+                loginBtn.prop('disabled', false).html('<i class="fas fa-sign-in-alt mr-2"></i> Login');
             }
+        });
+        
+        function showForgotPassword() {
+            $('#forgotPasswordModal').removeClass('hidden').addClass('flex');
         }
-
-        async function loadTodayVotes() {
+        
+        function hideForgotPassword() {
+            $('#forgotPasswordModal').removeClass('flex').addClass('hidden');
+            $('#resetMessage').addClass('hidden').empty();
+        }
+        
+        // Reset password form
+        $('#resetPasswordForm').submit(async function(e) {
+            e.preventDefault();
+            
+            const email = $('#resetEmail').val().trim();
+            
+            if (!email) {
+                showResetMessage('Please enter your email', 'error');
+                return;
+            }
+            
+            const btn = $(this).find('button[type="submit"]');
+            btn.prop('disabled', true).text('Sending...');
+            
             try {
-                const response = await fetch(`${CONFIG.API_BASE_URL}/vote/today`);
+                const response = await fetch(`${API_BASE_URL}/auth/reset-password-request`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
                 const data = await response.json();
                 
                 if (data.success) {
-                    updateVotesUI(data.data);
-                    updateVotingStatus();
+                    showResetMessage(data.message, 'success');
+                    $('#resetEmail').val('');
+                    setTimeout(hideForgotPassword, 3000);
+                } else {
+                    showResetMessage(data.error || 'Failed to send reset email', 'error');
                 }
             } catch (error) {
-                console.error('Failed to load votes:', error);
-            }
-        }
-
-        function renderSnacks() {
-            let html = '';
-            CONFIG.SNACKS.forEach(snack => {
-                html += `
-                    <div class="snack-card bg-white rounded-2xl p-6 text-center shadow hover:shadow-lg transition">
-                        <div class="text-6xl mb-4 hover:scale-110 transition-transform">${snack.emoji}</div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">${snack.name}</h3>
-                        <p class="text-gray-600 mb-4" id="votes_${snack.id}">0 votes</p>
-                        <button onclick="submitVote(${snack.id})" 
-                            class="vote-btn w-full bg-gradient-to-r ${snack.color_gradient} text-white py-3 rounded-xl font-bold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                            🗳️ Vote Now
-                        </button>
-                    </div>
-                `;
-            });
-            $('#snackGrid').html(html);
-        }
-
-        function updateVotesUI(data) {
-            // Update vote counts
-            data.voteCounts.forEach(snack => {
-                $(`#votes_${snack.id}`).text(`${snack.vote_count} vote${snack.vote_count !== 1 ? 's' : ''}`);
-            });
-            
-            // Update total votes
-            $('#totalVotes').text(data.totalVotes);
-            $('#voteCount').text(data.totalVotes);
-            
-            // Update voters list
-            let votersHtml = '';
-            if (data.votes.length === 0) {
-                votersHtml = `
-                    <div class="text-center py-8 text-gray-400">
-                        <div class="text-5xl mb-2">👥</div>
-                        <p>No votes yet today</p>
-                    </div>
-                `;
-            } else {
-                data.votes.forEach(vote => {
-                    const isCurrentUser = vote.user_id === state.userId;
-                    votersHtml += `
-                        <div class="flex items-center gap-3 bg-gray-50 rounded-xl p-3 ${isCurrentUser ? 'border-2 border-blue-200' : ''}">
-                            <span class="text-2xl">${vote.avatar_emoji || '👤'}</span>
-                            <div class="flex-1">
-                                <p class="font-medium ${isCurrentUser ? 'text-blue-600' : 'text-gray-700'}">
-                                    ${vote.employee_name} ${isCurrentUser ? '(You)' : ''}
-                                </p>
-                                <p class="text-xs text-gray-500">${vote.department || 'Office'}</p>
-                            </div>
-                            <span class="text-3xl">${vote.snack_emoji}</span>
-                        </div>
-                    `;
-                });
-            }
-            $('#votersList').html(votersHtml);
-        }
-
-        async function submitVote(snackId) {
-            if (!state.userId) {
-                alert('Please login first');
-                return;
+                showResetMessage('Network error. Please try again.', 'error');
             }
             
-            if (state.votingClosed) {
-                alert('Voting is closed for today!');
-                return;
-            }
+            btn.prop('disabled', false).text('Send Reset Instructions');
+        });
+        
+        function showResetMessage(message, type) {
+            const messageDiv = $('#resetMessage');
+            messageDiv.removeClass('hidden bg-green-100 text-green-700 bg-red-100 text-red-700');
             
-            const snack = CONFIG.SNACKS.find(s => s.id === snackId);
-            
-            if (confirm(`Vote for ${snack.emoji} ${snack.name}?`)) {
-                try {
-                    const response = await fetch(`${CONFIG.API_BASE_URL}/vote/submit`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            userId: state.userId,
-                            snackId: snackId
-                        })
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (data.success) {
-                        // Show success
-                        triggerConfetti();
-                        
-                        // Update immediately
-                        await loadTodayVotes();
-                        
-                        // Disable vote buttons temporarily
-                        $('.vote-btn').prop('disabled', true);
-                        setTimeout(() => {
-                            $('.vote-btn').prop('disabled', false);
-                        }, 1000);
-                        
-                    } else {
-                        alert('Vote failed: ' + (data.error || 'Please try again'));
-                    }
-                } catch (error) {
-                    alert('Network error. Please check your connection.');
-                }
-            }
-        }
-
-        // ============================================
-        // TIMER & AUTO-REFRESH
-        // ============================================
-
-        function startAutoRefresh() {
-            if (state.refreshTimer) clearInterval(state.refreshTimer);
-            
-            state.refreshTimer = setInterval(() => {
-                loadTodayVotes();
-            }, CONFIG.REFRESH_INTERVAL);
-        }
-
-        function startVotingTimer() {
-            function updateTimer() {
-                const now = new Date();
-                const endTime = new Date();
-                endTime.setHours(CONFIG.VOTING_END_HOUR, 0, 0, 0);
-                
-                if (now >= endTime) {
-                    $('#countdown').text('00:00:00');
-                    state.votingClosed = true;
-                    $('.vote-btn').prop('disabled', true);
-                    return;
-                }
-                
-                const diff = endTime - now;
-                const hours = Math.floor(diff / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                
-                $('#countdown').text(
-                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-                );
-            }
-            
-            updateTimer();
-            setInterval(updateTimer, 1000);
-        }
-
-        function updateVotingStatus() {
-            const now = new Date();
-            const currentHour = now.getHours();
-            
-            if (currentHour >= CONFIG.VOTING_END_HOUR) {
-                state.votingClosed = true;
-                $('.vote-btn').prop('disabled', true);
-            }
-        }
-
-        // ============================================
-        // STATS & UTILITIES
-        // ============================================
-
-        async function showStats() {
-            if (!state.userId) return;
-            
-            try {
-                // In production, you would fetch user stats
-                // For now, show basic info
-                $('#statsContent').html(`
-                    <div class="space-y-4">
-                        <div class="bg-blue-50 rounded-xl p-4">
-                            <h4 class="font-bold text-blue-800 mb-2">Your Profile</h4>
-                            <p><strong>Name:</strong> ${state.currentUser}</p>
-                            <p><strong>Department:</strong> ${state.userDept}</p>
-                        </div>
-                        <div class="bg-purple-50 rounded-xl p-4">
-                            <h4 class="font-bold text-purple-800 mb-2">Voting Info</h4>
-                            <p>Voting ${state.votingClosed ? 'closed' : 'open'} for today</p>
-                            <p>You ${state.hasVotedToday ? 'have' : 'have not'} voted today</p>
-                        </div>
-                    </div>
+            if (type === 'success') {
+                messageDiv.addClass('bg-green-100 text-green-700').html(`
+                    <i class="fas fa-check-circle mr-2"></i> ${message}
                 `);
-                
-                $('#statsModal').removeClass('hidden').addClass('flex');
-            } catch (error) {
-                console.error('Failed to load stats:', error);
+            } else {
+                messageDiv.addClass('bg-red-100 text-red-700').html(`
+                    <i class="fas fa-exclamation-circle mr-2"></i> ${message}
+                `);
             }
         }
-
-        function hideStats() {
-            $('#statsModal').removeClass('flex').addClass('hidden');
-        }
-
-        // ============================================
-        // EFFECTS
-        // ============================================
-
-        function triggerConfetti() {
-            const colors = ['#3B82F6', '#8B5CF6', '#EC4899', '#10B981', '#F59E0B'];
-            
-            for (let i = 0; i < 30; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    confetti.style.left = Math.random() * 100 + 'vw';
-                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-                    confetti.style.width = '10px';
-                    confetti.style.height = '10px';
-                    confetti.style.borderRadius = '50%';
-                    confetti.style.animationDuration = Math.random() * 2 + 1 + 's';
-                    
-                    $('#confettiContainer').append(confetti);
-                    
-                    setTimeout(() => {
-                        confetti.remove();
-                    }, 3000);
-                }, i * 50);
+        
+        // Check if user is already logged in
+        function checkAuth() {
+            const token = localStorage.getItem('auth_token');
+            if (token) {
+                // Verify token is valid
+                try {
+                    // Simple check - in production, validate with server
+                    window.location.href = 'dashboard.html';
+                } catch (error) {
+                    localStorage.clear();
+                }
             }
         }
-
-        // ============================================
-        // ERROR HANDLING
-        // ============================================
-
-        // Global error handler
-        window.addEventListener('error', function(e) {
-            console.error('Global error:', e.error);
-            // You could send this to an error tracking service
-        });
-
-        // Offline detection
-        window.addEventListener('offline', () => {
-            $('#serverStatus').text('Offline').addClass('text-red-500');
-            alert('You are offline. Please check your connection.');
-        });
-
-        window.addEventListener('online', () => {
-            $('#serverStatus').text('Connected').removeClass('text-red-500');
-            checkBackendConnection();
-        });
-
-        // Auto-reconnect
-        setInterval(checkBackendConnection, 30000); // Every 30 seconds
+        
+        // Run auth check
+        checkAuth();
     </script>
 </body>
 </html>
